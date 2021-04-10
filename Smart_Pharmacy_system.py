@@ -93,7 +93,7 @@ def display_menu():
     print("7-) Exit the program\n")
 
 # Update inventory function definition
-def updateInventory(Med_ID):
+def update_inventory(Med_ID):
     # TIP: keep this data visualization in mind
     # the next line shows a list of lists, for this program, each list inside the list is referred to as a row THUS:
     # [[2,PA1,Panadol,11.0,15,32,27102021],[1,AU3,Augmenting,34.0,167,98,01092021]]
@@ -129,50 +129,52 @@ def updateInventory(Med_ID):
     pass
 
 # search and delete function definition
-def searchAndDelete(medID, medType):
+def search_delete(medID, medType):
     # following the same method in UpdateInventory function
     with open("inventory.txt") as csvFile:
-        dataMed = csv.reader(csvFile, delimiter=',')
-        List = list(dataMed)
-        for row in List:
+        inventory = csv.reader(csvFile, delimiter=',')
+        inventoryList = list(inventory)
+        for row in inventoryList:
             if row[0] == medType and row[1] == medID: # find a row which has bot Type & ID values equal to user input
                 print("MED found")
-                print(f" Type : {row[0]}\n ID : {row[1]}\n Name :{row[2]}\n Price : {row[3]}\n quantity : {row[4]}\n quantity sold :{row[5]}\n Expiry Date : {row[6]} ")
+                print(f" Type : {row[0]}\n ID : {row[1]}\n Name :{row[2]}\n Price : {row[3]}\n quantity : {row[4]}"
+                      f"\n quantity sold :{row[5]}\n Expiry Date : {row[6]} ")
                 print("are you sure you want to delete the data above? (y/n)")
                 answer = input()
                 if answer == 'y' or answer == 'Y':
-                    rowIndex = List.index(row)
-                    List.pop(rowIndex)
+                    lineNo = inventoryList.index(row)
+                    inventoryList.pop(lineNo)
                     writeObject = csv.writer(open("inventory.txt", "w", newline=''))
-                    writeObject.writerows(List)
+                    writeObject.writerows(inventoryList)
                 else: pass
 
     pass
 
 
-def billing():
+def bill():
     print("Choose the Medicine")
     with open("inventory.txt") as csvFile:
-        dataMed = csv.reader(csvFile, delimiter=',')
-        List = list(dataMed)
-        for row in List: # a loop through all the list printing ID,Price,quantity available of all products
+        inventory = csv.reader(csvFile, delimiter=',')
+        inventoryList = list(inventory)
+        for row in inventoryList: # a loop through all the list printing ID,Price,quantity available of all products
             print(f" ID : {row[1]}  Price : {row[3]}  Quantity available : {row[4]}")
-        for row in List: # Billing loop
+        for row in inventoryList: # Billing loop
             print("MED ID: ")
-            medID = input()
-            if medID == row[1]: # find med id entered by the user in the list
+            ID = input()
+            if ID == row[1]: # find med id entered by the user in the list
                 print("type the Amount you want to buy:")
-                medAmount = input() # get the amount the user is willing to buy
-                AmountBuy = int(medAmount) # force user input to integer type
-                AmountSell =  int(row[4])  # get amount available
-                if AmountBuy <= AmountSell: # if amount desired by the user less than or equal stock proceed
+                quantity = input() # get the amount the user is willing to buy
+                purchaseQuantity = int(quantity) # force user input to integer type
+                availableAmoint =  int(row[4])  # get amount available
+                if purchaseQuantity <= availableAmoint: # if amount desired by the user less than or equal stock proceed
                     print("Your Bill")
-                    print(f"Medicine Name : {row[2]} \nQuantity purchased : {AmountBuy}\nPrice : {AmountBuy*float(row[3])}")
-                    AmountSell -= AmountBuy # subtracts user input from amount available
-                    row[4] = str(int(row[4])-AmountBuy) # updates quantity available of the med
-                    row[5] = str(int(row[5])+AmountBuy) # updates quantity sold of the med
+                    print(f"Medicine Name : {row[2]} \nQuantity purchased : {purchaseQuantity}\n"
+                          f"Price : {purchaseQuantity*float(row[3])}")
+                    availableAmoint -= purchaseQuantity # subtracts user input from amount available
+                    row[4] = str(int(row[4])-purchaseQuantity) # updates quantity available of the med
+                    row[5] = str(int(row[5])+purchaseQuantity) # updates quantity sold of the med
                     writeObject = csv.writer(open("inventory.txt", "w", newline=''))
-                    writeObject.writerows(List)
+                    writeObject.writerows(inventoryList)
                     break
                 else:
                     print("amount desired exceeds out stock")
@@ -184,7 +186,7 @@ def billing():
     pass
 
 
-def histoGramDisplay():
+def histogram():
     # remember to use "pip install matplotlib"
     # Tip: Listprice here hold a 2D list serving as the DataBase or Frequency counter.
     # this segment will create price list similar to this:
@@ -192,8 +194,8 @@ def histoGramDisplay():
     # name2,name2,name2,name2,name2,name2]
 
     import matplotlib.pyplot as plt
-    ListPrice = [] # initializing empty list which will hold amount sold
-    ListName = [] # empty list which will hold med names
+    Prices = [] # initializing empty list which will hold amount sold
+    Names = [] # empty list which will hold med names
     with open('inventory.txt')as csvFile:
         read = csv.reader(csvFile, delimiter=',')
         for row in read: # executing this loop for each row separately
@@ -201,9 +203,9 @@ def histoGramDisplay():
             range = int(row[5]) # histogram max data range
             while i<range:
                 i+=1
-                ListPrice.append(row[2]) # appends med name to the price list once each iteration till range is reached
-            ListName.append(row[2]) # append med name to Name list
-        plt.hist(ListPrice, bins=ListName, ) # plots the histogram
+                Prices.append(row[2]) # appends med name to the price list once each iteration till range is reached
+            Names.append(row[2]) # append med name to Name list
+        plt.hist(Prices, bins=Names, ) # plots the histogram
         plt.show() # shows the histogram
     pass
 
@@ -273,17 +275,17 @@ def main():
         elif choice == UPDATING: # choice# 3
             print("please type the MED ID you desire to edit")
             Med_ID = input()
-            updateInventory(Med_ID) #update inventory function with Med ID as parameter
+            update_inventory(Med_ID) #update inventory function with Med ID as parameter
         elif choice == SEARCH_DELETE: # choice# 4
             print("Please Type in the TYPE number")
             medType = input()
             print("Please enter the ID of a medicine")
             medID = input()
-            searchAndDelete(medID,medType)
+            search_delete(medID,medType)
         elif choice == BILLING: # choice# 5
-            billing()
+            bill()
         elif choice == HISTOGRAM_DISPLAY: # choice# 6
-            histoGramDisplay()
+            histogram()
 
 
         display_menu()
